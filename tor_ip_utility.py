@@ -22,7 +22,6 @@ class TorUtility:
         self.COLOR_CYAN = f"{Fore.CYAN}"
         self.COLOR_RESET = f"{Style.RESET_ALL}"
 
-        # Initialize history file
         BASE_DIR = Path(__file__).parent
         self.history_file = (BASE_DIR / "data" / "tor_ip_history.txt")
         self.initialize_history_file()
@@ -31,7 +30,6 @@ class TorUtility:
             target=self.history_log)
         history_thread.start()
 
-        # Additional attribute to store the current IP
         self.current_ip = None
 
     def initialize_history_file(self):
@@ -46,10 +44,7 @@ class TorUtility:
             self.current_ip = self.get_absolute_current_ip()
             if self.current_ip:
                 self.log_ip_change(self.current_ip)
-                # if self.verbose:
-                #     print(
-                #         f"\n\t\t\t\t\t\t{self.COLOR_GREEN}TOR IP: {self.current_ip}{self.COLOR_RESET}")
-
+                
     def log_ip_change(self, ip_address):
         """Log IP change along with timestamp."""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -165,15 +160,12 @@ class TorUtility:
                     "UseBridges",
                     "UseEntryGuards",
                     "UseMicrodescriptors",
-                    # Add more configuration parameters as needed
                 ]
 
-                # if self.verbose:
                 print(
                     f"\n{self.COLOR_GREEN}Tor Configuration Settings:{self.COLOR_RESET}")
                 for param in config_parameters:
                     value = controller.get_conf(param)
-                    # if self.verbose:
                     print(
                         f"    {self.COLOR_CYAN}{param}:{self.COLOR_RESET} {value}")
         except SocketError as se:
@@ -276,6 +268,5 @@ class TorUtility:
 
 
 if __name__ == "__main__":
-    # Set verbose to True or False to enable or disable verbose output
     tor_utility = TorUtility(verbose=True)
     tor_utility.run()
