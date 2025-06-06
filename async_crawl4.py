@@ -13,7 +13,6 @@ import time
 import threading
 from colorama import init, Fore
 
-# Initialize colorama
 init()
 
 TEMP_DB_PATH = 'temp'
@@ -103,16 +102,13 @@ async def web_crawler_with_saving_and_urls(id, url, session, connector):
         return set()
 
     try:
-        # Add a random user agent to the headers
         headers = {'User-Agent': get_random_user_agent()}
         
-        # Use a try-except block to catch CancelledError
         try:
             async with session.get(url, headers=headers, allow_redirects=True) as response:
-                response.raise_for_status()  # Raise an HTTPError for bad responses
+                response.raise_for_status()  
 
                 if response.status == 200:
-                    # Get the final URL after following redirects
                     final_url = str(response.url)
                     print_colored(
                         f"Final URL after redirects: {final_url}", Fore.GREEN)
@@ -126,9 +122,7 @@ async def web_crawler_with_saving_and_urls(id, url, session, connector):
                     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                     filename = f"{id}_{timestamp}_{generate_secure_random_string(8)}.html"
                     save_data_to_file(await response.text(), DATA_DIRECTORY, filename)
-                    # Save the final URL to CSV
                     save_url_to_csv(filename, final_url)
-                    # Save the final URL to the temporary database
                     save_url_to_temp_db(final_url)
                     if final_url != url:
                         save_url_to_temp_db(url)
@@ -140,7 +134,6 @@ async def web_crawler_with_saving_and_urls(id, url, session, connector):
                     return set()
 
         except asyncio.CancelledError:
-            # print_colored(f"Request for URL cancelled: {url}", Fore.YELLOW)
             return set()
 
     except Exception as e:
@@ -162,7 +155,6 @@ async def recursive_crawler(url, session, connector, depth=1, max_depth=3, limit
 
 
 async def main():
-    # create data/not_found.txt if it does not exist
     not_found_file_path = 'data/not_found.txt'
     os.makedirs('data', exist_ok=True)
     try:
@@ -205,7 +197,7 @@ async def main():
 
 def clear_temp_db_data():
     while True:
-        time.sleep(24*60*60)  # Sleep for 10 minutes (600 seconds)
+        time.sleep(24*60*60)  
         try:
             with open(os.path.join(TEMP_DB_PATH, "scraped.txt"), 'w', encoding='utf-8') as file:
                 file.truncate()
@@ -234,8 +226,6 @@ async def retry_scrape_not_found_urls(session, connector):
         print_colored(
             f"\nRetrying to scrape not found URL: {url}", Fore.YELLOW)
         await web_crawler_with_saving_and_urls(None, url, session, connector)
-        # If the scraping is successful, remove the URL from not_found.txt
-        # if url not in load_urls_from_temp_db():
         remove_url_from_not_found(url)
 
 
@@ -266,7 +256,7 @@ def remove_url_from_not_found(url):
 async def periodic_retry_scrape():
     print_colored("Periodic Retry Enabled", Fore.CYAN)
     while True:
-        time.sleep(24*60*60)  # 1 day
+        time.sleep(24*60*60)  
         try:
             connector = ProxyConnector.from_url('socks5://localhost:9050')
 
@@ -278,11 +268,8 @@ async def periodic_retry_scrape():
 
 if __name__ == '__main__':
     clear_thread = threading.Thread(target=clear_temp_db_data)
-    clear_thread.daemon = True  # The thread will exit when the main program exits
+    clear_thread.daemon = True  
     clear_thread.start()
-    # retry_thread = threading.Thread(target=periodic_retry_scrape)
-    # retry_thread.daemon = True
-    # retry_thread.start()
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
