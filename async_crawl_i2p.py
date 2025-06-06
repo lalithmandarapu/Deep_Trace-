@@ -15,7 +15,6 @@ if not os.path.exists("temp"):
     os.makedirs("temp")
 
 
-# Initialize colorama
 init()
 
 TEMP_DB_PATH = 'temp'
@@ -72,7 +71,6 @@ def save_url_to_temp_db(url):
     os.makedirs(TEMP_DB_PATH, exist_ok=True)
     temp_db_file = os.path.join(TEMP_DB_PATH, "scraped.txt")
 
-    # Check if the URL is already in the database
     if url in load_urls_from_temp_db():
         print_colored(
             f"URL already in temporary database: {url}", Fore.MAGENTA)
@@ -106,13 +104,11 @@ async def web_crawler_with_saving_and_urls(id, url, session, connector):
         return set()
 
     try:
-        # Add a random user agent to the headers
         headers = {'User-Agent': get_random_user_agent()}
         async with session.get(url, headers=headers, allow_redirects=True) as response:
-            response.raise_for_status()  # Raise an HTTPError for bad responses
+            response.raise_for_status()  
 
             if response.status == 200:
-                # Get the final URL after following redirects
                 final_url = str(response.url)
                 print_colored(
                     f"Final URL after redirects: {final_url}", Fore.MAGENTA)
@@ -127,9 +123,7 @@ async def web_crawler_with_saving_and_urls(id, url, session, connector):
                 timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                 filename = f"{id}_{timestamp}_{generate_secure_random_string(8)}.html"
                 save_data_to_file(await response.text(), DATA_DIRECTORY, filename)
-                # Save the final URL to CSV
                 save_url_to_csv(filename, final_url)
-                # Save the final URL to the temporary database
                 save_url_to_temp_db(final_url)
                 save_url_to_temp_db(url)
                 return urls_set
