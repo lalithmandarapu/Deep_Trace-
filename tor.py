@@ -18,6 +18,6 @@ retry_thread.daemon = True
 retry_thread.start()
 
 clear_thread = threading.Thread(target=clear_temp_db_data)
-clear_thread.daemon = True  # The thread will exit when the main program exits
+clear_thread.daemon = True  
 clear_thread.start()
 asyncio.run(tor_main())
